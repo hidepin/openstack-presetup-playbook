@@ -17,25 +17,6 @@
     - NetworkManager
     - postfix
 
-- name: create cinder dir
-  file:
-    path: /opt/openstack/cinder
-    state: directory
-
-- name: create cinder volumes
-  shell: |
-    dd if=/dev/zero of=/opt/openstack/cinder/cinder.img bs=1G count={{ cinder_volume_size }}
-    losetup /dev/loop0 /opt/openstack/cinder/cinder.img
-    parted -s /dev/loop0 'mklabel gpt'
-    parted -s /dev/loop0 'mkpart primary 0 -1'
-    parted -s /dev/loop0 'set 1 lvm on'
-    partprobe /dev/loop0
-    pvcreate -y -ff /dev/loop0p1
-    vgcreate -y -f cinder-volumes /dev/loop0p1
-  args:
-    creates: /opt/openstack/cinder/cinder.img
-  when: cinder_volume_size > 0
-
 - block:
   - name: setup environment
     copy:

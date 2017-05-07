@@ -32,5 +32,4 @@ update_pkg:
   - glibc-devel
   - glibc-headers
   - systemd
-cinder_volume_size: 50
 centos_rdo_rpm: centos-release-openstack-ocata
