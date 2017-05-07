@@ -28,11 +28,22 @@
       backup: yes
     register: is_environment_setting
 
+  - name: nested kvm
+    copy:
+      src: dist.conf
+      dest: /etc/modprobe.d/dist.conf
+      owner: root
+      group: root
+      mode: 0644
+      backup: yes
+    register: is_modprobe_setting
+
   always:
   - name: openstack presetup backup settings
     include: backup.yml
     with_flattened:
       - "{{ is_environment_setting|default() }}"
+      - "{{ is_modprobe_setting|default() }}"
     loop_control:
       loop_var: backup_item
 
