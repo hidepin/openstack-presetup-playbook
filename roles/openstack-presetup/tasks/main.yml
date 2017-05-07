@@ -6,7 +6,7 @@
     state: present
   with_items:
     - lvm2
-    - "{{ rdo_repos }}"
+    - "{{ (ansible_distribution == 'RedHat')|ternary('https://www.rdoproject.org/repos/rdo-release.rpm', centos_rdo_rpm) }}"
 
 - name: disable openstack unuse services
   service:

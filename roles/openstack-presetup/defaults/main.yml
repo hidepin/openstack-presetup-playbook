@@ -1,4 +1,4 @@
 ---
 # defaults file for openstack-presetup
 cinder_volume_size: 50
-rdo_repos: https://repos.fedorapeople.org/repos/openstack/openstack-ocata/rdo-release-ocata-2.noarch.rpm
+centos_rdo_rpm: centos-release-openstack-ocata
