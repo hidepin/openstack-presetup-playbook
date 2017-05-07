@@ -32,3 +32,5 @@ update_pkg:
   - glibc-devel
   - glibc-headers
   - systemd
+cinder_volume_size: 50
+rdo_repos: https://repos.fedorapeople.org/repos/openstack/openstack-ocata/rdo-release-ocata-2.noarch.rpm

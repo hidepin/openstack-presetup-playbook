@@ -1,0 +1,66 @@
+---
+# tasks file for openstack-presetup
+- name: install openstack require package
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - lvm2
+    - "{{ rdo_repos }}"
+
+- name: disable openstack unuse services
+  service:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  with_items:
+    - NetworkManager
+    - postfix
+
+- name: create cinder dir
+  file:
+    path: /opt/openstack/cinder
+    state: directory
+
+- name: create cinder volumes
+  shell: |
+    dd if=/dev/zero of=/opt/openstack/cinder/cinder.img bs=1G count={{ cinder_volume_size }}
+    losetup /dev/loop0 /opt/openstack/cinder/cinder.img
+    parted -s /dev/loop0 'mklabel gpt'
+    parted -s /dev/loop0 'mkpart primary 0 -1'
+    parted -s /dev/loop0 'set 1 lvm on'
+    partprobe /dev/loop0
+    pvcreate -y -ff /dev/loop0p1
+    vgcreate -y -f cinder-volumes /dev/loop0p1
+  args:
+    creates: /opt/openstack/cinder/cinder.img
+  when: cinder_volume_size > 0
+
+- block:
+  - name: setup environment
+    copy:
+      src: environment
+      dest: /etc/environment
+      owner: root
+      group: root
+      mode: 0644
+      backup: yes
+    register: is_environment_setting
+
+  always:
+  - name: openstack presetup backup settings
+    include: backup.yml
+    with_flattened:
+      - "{{ is_environment_setting|default() }}"
+    loop_control:
+      loop_var: backup_item
+
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: install openstack
+  package:
+    name: openstack-packstack
+    state: present
